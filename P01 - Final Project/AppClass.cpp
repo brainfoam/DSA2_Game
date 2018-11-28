@@ -4,7 +4,27 @@ using namespace Simplex;
 MyMesh* m_block;
 float f_cameraSpeed = .1;
 int i_gameTick;
+
 std::vector<vector3> v_v3blockPositions;
+
+void Application::ApplyForceToPlayer(vector3 a_force)
+{
+	//float time = m_pSystem->GetDeltaTime(m_clock);
+	float time = static_cast<float>(i_gameTick % 60)/100;
+	if (time == 0) time = 1.0f;
+	m_v3PlayerAcceleration += a_force; //Player mass is 1
+	m_v3PlayerVelocity += m_v3PlayerAcceleration * time;
+
+	//Clamp velocity
+	if (m_v3PlayerVelocity.y > 1.5f) m_v3PlayerVelocity.y = 1.5f;
+	else if (m_v3PlayerVelocity.y < -1.5f) m_v3PlayerVelocity.y = -1.5f;
+
+	m_v3PlayerPosition += m_v3PlayerVelocity * time;
+
+
+	//Reset acceleration
+	m_v3PlayerAcceleration = vector3(0.0f);
+}
 
 void Application::InitVariables(void)
 {
@@ -27,9 +47,18 @@ void Application::InitVariables(void)
 	m_pMyMeshMngr->SetCamera(m_pCamera);
 
 	v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 0, -20));
+
+	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 0, -25));
+	m_v3PlayerVelocity = vector3(0.0f);
+	m_v3PlayerAcceleration = vector3(0.0f);
+	m_v3Gravity = vector3(0.0f, -0.1f, 0.0f);
+
+	m_clock = m_pSystem->GenClock();
 }
 void Application::Update(void)
 {
+	m_currTime = m_pSystem->GetDeltaTime(m_clock);
+
 	i_gameTick++;
 
 	//Update the system so it knows how much time has passed since the last call
@@ -59,6 +88,11 @@ void Application::Update(void)
 		m_pMyMeshMngr->AddCubeToRenderList(glm::translate(position) * glm::scale(vector3(10, 1, 1)));
 	}
 	
+	//Add the player to the render list and apply "gravity"
+	m_pMyMeshMngr->AddCubeToRenderList(glm::translate(m_v3PlayerPosition) * glm::scale(vector3(3)));
+	ApplyForceToPlayer(m_v3Gravity);
+
+	//If the player falls under the camera, game is over
 
 	m_pCamera->MoveVertical(f_cameraSpeed);
 

@@ -16,10 +16,18 @@ namespace Simplex
 
 class Application
 {
+	vector3 m_v3PlayerPosition; //The player's current position
+	vector3 m_v3Gravity; //Acceleration of the player towards the bottom. Resets when the player jumps
+
 	MyCamera* m_pCamera = nullptr; //Camera class
 	MyMeshManager* m_pMyMeshMngr = nullptr; //My Mesh Manager
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //Programmer
 private:
+	vector3 m_v3PlayerAcceleration;
+	vector3 m_v3PlayerVelocity;
+	uint m_clock;
+	float m_currTime;
+
 	static ImGuiObject gui; //GUI object
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame
@@ -42,6 +50,9 @@ private:
 	uint m_uActCont = 0; //Active Controller of the Application
 
 public:
+	//Applies a force to the player
+	void ApplyForceToPlayer(vector3 a_force);
+
 #pragma region Constructor / Run / Destructor
 	/*
 	USAGE: Constructor

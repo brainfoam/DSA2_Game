@@ -74,8 +74,17 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 {
 	switch (a_event.key.code)
 	{
-	default: break;
+	//Jump up when pressing space
 	case sf::Keyboard::Space:
+		Application::ApplyForceToPlayer(vector3(0.0f, 5.0f, 0.0f));
+		break;
+	case sf::Keyboard::Left:
+		Application::ApplyForceToPlayer(vector3(-2.0f, 0.0f, 0.0f));
+		break;
+	case sf::Keyboard::Right:
+		Application::ApplyForceToPlayer(vector3(2.0f, 0.0f, 0.0f));
+		break;
+	default: break;
 		break;
 	}
 	//gui
