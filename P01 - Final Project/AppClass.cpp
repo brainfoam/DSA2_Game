@@ -25,14 +25,14 @@ void Application::ApplyForceToPlayer(vector3 a_force)
 	//Reset acceleration
 	m_v3PlayerAcceleration = vector3(0.0f);
 	//pass the player's y-velocity to the camera
-	FollowCamera(m_v3PlayerVelocity.y);
+	FollowCamera(m_v3PlayerVelocity.y * time);
 }
 
 void Application::FollowCamera(float a_fForce) 
 {
 	//if the player's y-velocity is positive (player is moving up), camera follows them up
 	if (a_fForce > 0) {
-		m_pCameraMngr->MoveVertical(a_fForce);
+		m_pCamera->MoveVertical(a_fForce);
 	}
 }
 
