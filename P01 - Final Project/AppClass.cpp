@@ -10,7 +10,7 @@ std::vector<vector3> v_v3blockPositions;
 void Application::ApplyForceToPlayer(vector3 a_force)
 {
 	//float time = m_pSystem->GetDeltaTime(m_clock);
-	float time = static_cast<float>(i_gameTick % 60)/100;
+	float time = static_cast<float>(i_gameTick % 60) / 100;
 	if (time == 0) time = 1.0f;
 	m_v3PlayerAcceleration += a_force; //Player mass is 1
 	m_v3PlayerVelocity += m_v3PlayerAcceleration * time;
@@ -24,6 +24,16 @@ void Application::ApplyForceToPlayer(vector3 a_force)
 
 	//Reset acceleration
 	m_v3PlayerAcceleration = vector3(0.0f);
+	//pass the player's y-velocity to the camera
+	FollowCamera(m_v3PlayerVelocity.y);
+}
+
+void Application::FollowCamera(float a_fForce) 
+{
+	//if the player's y-velocity is positive (player is moving up), camera follows them up
+	if (a_fForce > 0) {
+		m_pCameraMngr->MoveVertical(a_fForce);
+	}
 }
 
 void Application::InitVariables(void)
@@ -38,11 +48,11 @@ void Application::InitVariables(void)
 	//init the camera
 	m_pCamera = new MyCamera();
 	m_pCamera->SetPositionTargetAndUpward(
-			vector3(0.0f, 3.0f, 20.0f), //Where my eyes are
-			vector3(0.0f, 3.0f, 19.0f), //where what I'm looking at is
-			AXIS_Y);					//what is up
+		vector3(0.0f, 3.0f, 20.0f), //Where my eyes are
+		vector3(0.0f, 3.0f, 19.0f), //where what I'm looking at is
+		AXIS_Y);					//what is up
 
-	//Get the singleton
+//Get the singleton
 	m_pMyMeshMngr = MyMeshManager::GetInstance();
 	m_pMyMeshMngr->SetCamera(m_pCamera);
 
@@ -87,7 +97,7 @@ void Application::Update(void)
 		vector3 position = v_v3blockPositions[i];
 		m_pMyMeshMngr->AddCubeToRenderList(glm::translate(position) * glm::scale(vector3(10, 1, 1)));
 	}
-	
+
 	//Add the player to the render list and apply "gravity"
 	m_pMyMeshMngr->AddCubeToRenderList(glm::translate(m_v3PlayerPosition) * glm::scale(vector3(3)));
 	ApplyForceToPlayer(m_v3Gravity);
@@ -107,16 +117,16 @@ void Application::Display(void)
 
 	//Render the list of MyMeshManager
 	m_pMyMeshMngr->Render();
-	
+
 	//render list call
 	m_uRenderCallCount = m_pMeshMngr->Render();
 
 	//clear the MyMeshManager list
 	m_pMyMeshMngr->ClearRenderList();
-	
+
 	//draw gui
 	DrawGUI();
-	
+
 	//end the current frame (internally swaps the front and back buffers)
 	m_pWindow->display();
 }
