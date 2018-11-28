@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{08A11DA8-4582-4AE0-90FE-929F44487E65}</ProjectGuid>
+    <ProjectGuid>{3D5DA528-C037-45D6-9910-E95591C9DB6E}</ProjectGuid>
     <RootNamespace>A04 - Camera</RootNamespace>
     <ProjectName>A04 - Camera</ProjectName>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
