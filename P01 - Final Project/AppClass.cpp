@@ -9,17 +9,20 @@ std::vector<vector3> v_v3blockPositions;
 
 void Application::ApplyForceToPlayer(vector3 a_force)
 {
-	//float time = m_pSystem->GetDeltaTime(m_clock);
-	float time = static_cast<float>(i_gameTick % 60)/100;
-	if (time == 0) time = 1.0f;
 	m_v3PlayerAcceleration += a_force; //Player mass is 1
-	m_v3PlayerVelocity += m_v3PlayerAcceleration * time;
+	m_v3PlayerVelocity += m_v3PlayerAcceleration;
 
 	//Clamp velocity
-	if (m_v3PlayerVelocity.y > 1.5f) m_v3PlayerVelocity.y = 1.5f;
-	else if (m_v3PlayerVelocity.y < -1.5f) m_v3PlayerVelocity.y = -1.5f;
+	if (m_v3PlayerVelocity.y > 0.5f) m_v3PlayerVelocity.y = 0.5f;
+	else if (m_v3PlayerVelocity.y < -0.5f) m_v3PlayerVelocity.y = -0.5f;
 
-	m_v3PlayerPosition += m_v3PlayerVelocity * time;
+	if (m_v3PlayerVelocity.x > 0.5f) m_v3PlayerVelocity.x = 0.5f;
+	else if (m_v3PlayerVelocity.x < -0.5f) m_v3PlayerVelocity.x = -0.5f;
+
+	if (m_v3PlayerVelocity.z > 0.5f) m_v3PlayerVelocity.z = 0.5f;
+	else if (m_v3PlayerVelocity.z < -0.5f) m_v3PlayerVelocity.z = -0.5f;
+
+	m_v3PlayerPosition += m_v3PlayerVelocity;
 
 
 	//Reset acceleration
@@ -51,13 +54,13 @@ void Application::InitVariables(void)
 	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 0, -25));
 	m_v3PlayerVelocity = vector3(0.0f);
 	m_v3PlayerAcceleration = vector3(0.0f);
-	m_v3Gravity = vector3(0.0f, -0.1f, 0.0f);
-
-	m_clock = m_pSystem->GenClock();
+	m_v3Gravity = vector3(0.0f, -0.01f, 0.0f);
 }
 void Application::Update(void)
 {
-	m_currTime = m_pSystem->GetDeltaTime(m_clock);
+	if (m_v3PlayerVelocity.x < 0.01f) isMovingRight = false;
+	if (m_v3PlayerVelocity.x > -0.01f) isMovingLeft = false;
+	if (m_v3PlayerVelocity.y < 0.0f) isJumping = false;
 
 	i_gameTick++;
 
