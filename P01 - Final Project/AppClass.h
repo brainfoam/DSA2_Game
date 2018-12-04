@@ -22,11 +22,14 @@ class Application
 	MyCamera* m_pCamera = nullptr; //Camera class
 	MyMeshManager* m_pMyMeshMngr = nullptr; //My Mesh Manager
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //Programmer
+
+	bool isMovingLeft = false;
+	bool isMovingRight = false;
+	bool isJumping = false;
+
 private:
 	vector3 m_v3PlayerAcceleration;
 	vector3 m_v3PlayerVelocity;
-	uint m_clock;
-	float m_currTime;
 
 	static ImGuiObject gui; //GUI object
 

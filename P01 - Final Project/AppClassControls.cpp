@@ -76,13 +76,25 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 	{
 	//Jump up when pressing space
 	case sf::Keyboard::Space:
-		Application::ApplyForceToPlayer(vector3(0.0f, 5.0f, 0.0f));
+		if(Application::isJumping == false)
+		{
+			Application::ApplyForceToPlayer(vector3(0.0f, 0.7f, 0.0f));
+			Application::isJumping = true;
+		}
 		break;
 	case sf::Keyboard::Left:
-		Application::ApplyForceToPlayer(vector3(-2.0f, 0.0f, 0.0f));
+		if(Application::isMovingLeft == false)
+		{
+			Application::ApplyForceToPlayer(vector3(-0.2f, 0.0f, 0.0f));
+			Application::isMovingLeft = true;
+		}
 		break;
 	case sf::Keyboard::Right:
-		Application::ApplyForceToPlayer(vector3(2.0f, 0.0f, 0.0f));
+		if(Application::isMovingRight == false)
+		{
+			Application::ApplyForceToPlayer(vector3(0.2f, 0.0f, 0.0f));
+			Application::isMovingRight = true;
+		}
 		break;
 	default: break;
 		break;
