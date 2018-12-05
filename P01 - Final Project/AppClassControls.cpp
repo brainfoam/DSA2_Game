@@ -13,7 +13,7 @@ void Application::ProcessMouseMovement(sf::Event a_event)
 	sf::Vector2i window = m_pWindow->getPosition();
 	m_v3Mouse.x = static_cast<float>(mouse.x - window.x);
 	m_v3Mouse.y = static_cast<float>(mouse.y - window.y);
-	if(!m_pSystem->IsWindowFullscreen() && !m_pSystem->IsWindowBorderless())
+	if (!m_pSystem->IsWindowFullscreen() && !m_pSystem->IsWindowBorderless())
 		m_v3Mouse += vector3(-8.0f, -32.0f, 0.0f);
 	gui.io.MousePos = ImVec2(m_v3Mouse.x, m_v3Mouse.y);
 }
@@ -74,23 +74,23 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 {
 	switch (a_event.key.code)
 	{
-	//Jump up when pressing space
+		//Jump up when pressing space
 	case sf::Keyboard::Space:
-		if(Application::isJumping == false)
+		if (Application::isJumping == false)
 		{
-			Application::ApplyForceToPlayer(vector3(0.0f, 0.7f, 0.0f));
+			Application::ApplyForceToPlayer(vector3(0.0f, 1.2f, 0.0f));
 			Application::isJumping = true;
 		}
 		break;
 	case sf::Keyboard::Left:
-		if(Application::isMovingLeft == false)
+		if (Application::isMovingLeft == false)
 		{
 			Application::ApplyForceToPlayer(vector3(-0.2f, 0.0f, 0.0f));
 			Application::isMovingLeft = true;
 		}
 		break;
 	case sf::Keyboard::Right:
-		if(Application::isMovingRight == false)
+		if (Application::isMovingRight == false)
 		{
 			Application::ApplyForceToPlayer(vector3(0.2f, 0.0f, 0.0f));
 			Application::isMovingRight = true;
@@ -394,7 +394,7 @@ void Application::CameraRotation(float a_fSpeed)
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
-	
+
 #pragma region Set Yaw & Pitch + Rotate
 	//----------------------------------------------------------------------------------------------------------------------------------
 	f_yaw += -fAngleY * f_sensitivity; //Set the yaw value
