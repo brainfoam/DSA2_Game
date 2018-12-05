@@ -9,14 +9,12 @@ std::vector<vector3> v_v3blockPositions;
 
 void Application::ApplyForceToPlayer(vector3 a_force)
 {
-	float time = static_cast<float>(i_gameTick % 60) / 100;
-	if (time == 0) time = 1.0f;
 	m_v3PlayerAcceleration += a_force; //Player mass is 1
 	m_v3PlayerVelocity += m_v3PlayerAcceleration;
 
 	//Clamp velocity
-	if (m_v3PlayerVelocity.y > 1.5f) m_v3PlayerVelocity.y = 1.5f;
-	else if (m_v3PlayerVelocity.y < -1.5f) m_v3PlayerVelocity.y = -1.5f;
+	if (m_v3PlayerVelocity.y > 0.5f) m_v3PlayerVelocity.y = 0.5f;
+	else if (m_v3PlayerVelocity.y < -0.5f) m_v3PlayerVelocity.y = -0.5f;
 
 	if (m_v3PlayerVelocity.x > 0.5f) m_v3PlayerVelocity.x = 0.5f;
 	else if (m_v3PlayerVelocity.x < -0.5f) m_v3PlayerVelocity.x = -0.5f;
