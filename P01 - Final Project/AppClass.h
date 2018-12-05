@@ -55,6 +55,7 @@ namespace Simplex
 	public:
 		//Applies a force to the player
 		void ApplyForceToPlayer(vector3 a_force);
+		bool CheckCollision(vector3);
 		void FollowCamera(float a_fForce);
 
 #pragma region Constructor / Run / Destructor

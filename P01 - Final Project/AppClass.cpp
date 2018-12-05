@@ -7,6 +7,20 @@ int i_gameTick;
 
 std::vector<vector3> v_v3blockPositions;
 
+bool Application::CheckCollision(vector3 v)
+{
+	for (auto i = 0; i < v_v3blockPositions.size(); i++)
+	{
+		vector3 collider = v_v3blockPositions[i];
+		if (m_v3PlayerVelocity.y < 0)
+		{
+			if (glm::distance(collider, v) < 1)
+				return false;
+		}
+	}
+	return true;
+}
+
 void Application::ApplyForceToPlayer(vector3 a_force)
 {
 	float time = static_cast<float>(i_gameTick % 60) / 100;
@@ -24,7 +38,8 @@ void Application::ApplyForceToPlayer(vector3 a_force)
 	if (m_v3PlayerVelocity.z > 0.5f) m_v3PlayerVelocity.z = 0.5f;
 	else if (m_v3PlayerVelocity.z < -0.5f) m_v3PlayerVelocity.z = -0.5f;
 
-	m_v3PlayerPosition += m_v3PlayerVelocity * time;
+	if (CheckCollision(m_v3PlayerPosition + m_v3PlayerVelocity * time));
+		m_v3PlayerPosition += m_v3PlayerVelocity * time;
 
 	//Reset acceleration
 	m_v3PlayerAcceleration = vector3(0.0f);
@@ -53,7 +68,7 @@ void Application::InitVariables(void)
 	m_pCamera = new MyCamera();
 	m_pCamera->SetPositionTargetAndUpward(
 		vector3(0.0f, 3.0f, 20.0f), //Where my eyes are
-		vector3(0.0f, 3.0f, 19.0f), //where what I'm looking at is
+		vector3(0.0f, 3.0f, 15.0f), //where what I'm looking at is
 		AXIS_Y);					//what is up
 
 //Get the singleton
@@ -62,7 +77,7 @@ void Application::InitVariables(void)
 
 	v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 15, -20));
 
-	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 0, -25));
+	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 20, -25));
 	m_v3PlayerVelocity = vector3(0.0f);
 	m_v3PlayerAcceleration = vector3(0.0f);
 	m_v3Gravity = vector3(0.0f, -0.01f, 0.0f);
@@ -84,10 +99,10 @@ void Application::Update(void)
 	//Is the first person camera active?
 	//CameraRotation();
 
-	if (i_gameTick % 50 == 0)
+	if (i_gameTick % 100 == 0)
 	{
-		float f_randomX = rand() % 10;
-		vector3 position = vector3(f_randomX - 5, 0, 0);
+		float f_randomX = rand() % 20;
+		vector3 position = vector3(f_randomX - 10, 0, 0);
 		v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 15, -20) + position);
 
 		if (v_v3blockPositions.size() > 6)
@@ -103,6 +118,7 @@ void Application::Update(void)
 	}
 
 	//Add the player to the render list and apply "gravity"
+	m_v3PlayerPosition.x = m_pCamera->GetPosition().x;
 	m_pMyMeshMngr->AddCubeToRenderList(glm::translate(m_v3PlayerPosition) * glm::scale(vector3(3)));
 	ApplyForceToPlayer(m_v3Gravity);
 
@@ -114,7 +130,7 @@ void Application::Update(void)
 void Application::Display(void)
 {
 	//Clear the screen
-	ClearScreen();
+	ClearScreen(vector4(1.0f, .5f, 1.0f, 1.0f));
 
 	//clear the render list
 	m_pMeshMngr->ClearRenderList();
