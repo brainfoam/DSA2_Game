@@ -5,10 +5,13 @@ MyMesh* m_block;
 float f_cameraSpeed = .1;
 int i_gameTick;
 
+MyEntityManager* m_pEntityManager;
+
 std::vector<vector3> v_v3blockPositions;
 
 void Application::ApplyForceToPlayer(vector3 a_force)
 {
+
 	float time = static_cast<float>(i_gameTick % 60) / 100;
 	if (time == 0) time = 1.0f;
 	m_v3PlayerAcceleration += a_force; //Player mass is 1
@@ -60,6 +63,9 @@ void Application::InitVariables(void)
 	m_pMyMeshMngr = MyMeshManager::GetInstance();
 	m_pMyMeshMngr->SetCamera(m_pCamera);
 
+	// Get the Entity Manager;
+	m_pEntityManager = MyEntityManager::GetInstance();
+
 	v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 15, -20));
 
 	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 0, -25));
@@ -88,7 +94,7 @@ void Application::Update(void)
 	{
 		float f_randomX = rand() % 10;
 		vector3 position = vector3(f_randomX - 5, 0, 0);
-		v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 15, -20) + position);
+		v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 0, -20) + position);
 
 		if (v_v3blockPositions.size() > 6)
 		{
@@ -101,6 +107,7 @@ void Application::Update(void)
 		vector3 position = v_v3blockPositions[i];
 		m_pMyMeshMngr->AddCubeToRenderList(glm::translate(position) * glm::scale(vector3(10, 1, 1)));
 	}
+
 
 	//Add the player to the render list and apply "gravity"
 	m_pMyMeshMngr->AddCubeToRenderList(glm::translate(m_v3PlayerPosition) * glm::scale(vector3(3)));
