@@ -12,13 +12,20 @@ bool Application::CheckCollision(vector3 v)
 	for (auto i = 0; i < v_v3blockPositions.size(); i++)
 	{
 		vector3 collider = v_v3blockPositions[i];
+		vector3 playerV = v;
+		playerV.y - 3.0f;
+		//std::cout << v.x << "  " << v.y << "  " << v.z << "\t\t"<< collider.x << "  " << collider.y << "  " << collider.z << std::endl;
 		if (m_v3PlayerVelocity.y < 0)
 		{
-			if (glm::distance(collider, v) < 1)
-				return false;
+			if (glm::distance(collider.y, playerV.y) < 0.4f&&glm::distance(playerV.x,collider.x)<5.0f)
+  				return true;
 		}
+		//std::cout << v.x << ", " << v.y << ", " << v.z << "\t";
+		//std::cout << collider.x << " " << collider.y << " " << collider.z << "\n"<< std::endl;
 	}
-	return true;
+	//std::cout << glm::distance(v_v3blockPositions[0], v) << std::endl;
+	
+ 	return false;
 }
 
 void Application::FollowCamera(float a_fForce)
@@ -53,7 +60,7 @@ void Application::InitVariables(void)
 
 	v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 15, -20));
 
-	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 20, -25));
+	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 30, -25));
 	m_v3PlayerVelocity = vector3(0.0f);
 	m_v3PlayerAcceleration = vector3(0.0f);
 	m_v3Gravity = vector3(0.0f, -0.01f, 0.0f);
@@ -94,23 +101,32 @@ void Application::AddPlayerToRenderList()
 		* glm::scale(vector3(1.3f, 3.0f, 3.0f))); //Right Leg
 }
 
+float f_maxVelocity = 0.7f;
 void Application::ApplyForceToPlayer(vector3 a_force)
 {
 	m_v3PlayerAcceleration += a_force; //Player mass is 1
 	m_v3PlayerVelocity += m_v3PlayerAcceleration;
 
 	//Clamp velocity
-	if (m_v3PlayerVelocity.y > 0.5f) m_v3PlayerVelocity.y = 0.5f;
-	else if (m_v3PlayerVelocity.y < -0.5f) m_v3PlayerVelocity.y = -0.5f;
+	if (m_v3PlayerVelocity.y > f_maxVelocity) m_v3PlayerVelocity.y = f_maxVelocity;
+	else if (m_v3PlayerVelocity.y < -f_maxVelocity) m_v3PlayerVelocity.y = -f_maxVelocity;
 
-	if (m_v3PlayerVelocity.x > 0.5f) m_v3PlayerVelocity.x = 0.5f;
-	else if (m_v3PlayerVelocity.x < -0.5f) m_v3PlayerVelocity.x = -0.5f;
+	if (m_v3PlayerVelocity.x > f_maxVelocity) m_v3PlayerVelocity.x = f_maxVelocity;
+	else if (m_v3PlayerVelocity.x < -f_maxVelocity) m_v3PlayerVelocity.x = -f_maxVelocity;
 
-	if (m_v3PlayerVelocity.z > 0.5f) m_v3PlayerVelocity.z = 0.5f;
-	else if (m_v3PlayerVelocity.z < -0.5f) m_v3PlayerVelocity.z = -0.5f;
+	if (m_v3PlayerVelocity.z > f_maxVelocity) m_v3PlayerVelocity.z = f_maxVelocity;
+	else if (m_v3PlayerVelocity.z < -f_maxVelocity) m_v3PlayerVelocity.z = -f_maxVelocity;
 
-	if (CheckCollision(m_v3PlayerPosition + m_v3PlayerVelocity));
+	if (CheckCollision(m_v3PlayerPosition /*+ m_v3PlayerVelocity*/))
+	{
+		m_v3PlayerVelocity *= -1.0f;
+		//m_v3PlayerAcceleration = vector3(0, 0, 0);
+	}
+		
 	m_v3PlayerPosition += m_v3PlayerVelocity;
+
+	
+		
 
 	//Reset acceleration
 	m_v3PlayerAcceleration = vector3(0.0f);
@@ -122,7 +138,8 @@ void Application::Update(void)
 {
 	if (m_v3PlayerVelocity.x < 0.01f) isMovingRight = false;
 	if (m_v3PlayerVelocity.x > -0.01f) isMovingLeft = false;
-	if (m_v3PlayerVelocity.y < 0.0f) isJumping = false;
+  	if (m_v3PlayerVelocity.y < 0.0f) 
+   		isJumping = false;
 
 	i_gameTick++;
 
@@ -143,7 +160,7 @@ void Application::Update(void)
 
 		if (v_v3blockPositions.size() > 6)
 		{
-			v_v3blockPositions.erase(v_v3blockPositions.begin());
+  			v_v3blockPositions.erase(v_v3blockPositions.begin());
 		}
 	}
 
@@ -152,6 +169,8 @@ void Application::Update(void)
 		vector3 position = v_v3blockPositions[i];
 		m_pMyMeshMngr->AddCubeToRenderList(glm::translate(position) * glm::scale(vector3(10, 1, 1)));
 	}
+
+	// check collision with player and each block
 
 	//Add the player to the render list and apply "gravity"
 	m_v3PlayerPosition.x = m_pCamera->GetPosition().x;
