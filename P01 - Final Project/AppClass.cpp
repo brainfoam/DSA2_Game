@@ -5,34 +5,20 @@ MyMesh* m_block;
 float f_cameraSpeed = .1;
 int i_gameTick;
 
-MyEntityManager* m_pEntityManager;
-
 std::vector<vector3> v_v3blockPositions;
 
-void Application::ApplyForceToPlayer(vector3 a_force)
+bool Application::CheckCollision(vector3 v)
 {
-
-	float time = static_cast<float>(i_gameTick % 60) / 100;
-	if (time == 0) time = 1.0f;
-	m_v3PlayerAcceleration += a_force; //Player mass is 1
-	m_v3PlayerVelocity += m_v3PlayerAcceleration;
-
-	//Clamp velocity
-	if (m_v3PlayerVelocity.y > 1.5f) m_v3PlayerVelocity.y = 1.5f;
-	else if (m_v3PlayerVelocity.y < -1.5f) m_v3PlayerVelocity.y = -1.5f;
-
-	if (m_v3PlayerVelocity.x > 0.5f) m_v3PlayerVelocity.x = 0.5f;
-	else if (m_v3PlayerVelocity.x < -0.5f) m_v3PlayerVelocity.x = -0.5f;
-
-	if (m_v3PlayerVelocity.z > 0.5f) m_v3PlayerVelocity.z = 0.5f;
-	else if (m_v3PlayerVelocity.z < -0.5f) m_v3PlayerVelocity.z = -0.5f;
-
-	m_v3PlayerPosition += m_v3PlayerVelocity * time;
-
-	//Reset acceleration
-	m_v3PlayerAcceleration = vector3(0.0f);
-	//pass the player's y-velocity to the camera
-	FollowCamera(m_v3PlayerVelocity.y);
+	for (auto i = 0; i < v_v3blockPositions.size(); i++)
+	{
+		vector3 collider = v_v3blockPositions[i];
+		if (m_v3PlayerVelocity.y < 0)
+		{
+			if (glm::distance(collider, v) < 1)
+				return false;
+		}
+	}
+	return true;
 }
 
 void Application::FollowCamera(float a_fForce)
@@ -56,23 +42,82 @@ void Application::InitVariables(void)
 	m_pCamera = new MyCamera();
 	m_pCamera->SetPositionTargetAndUpward(
 		vector3(0.0f, 3.0f, 20.0f), //Where my eyes are
-		vector3(0.0f, 3.0f, 19.0f), //where what I'm looking at is
+		vector3(0.0f, 3.0f, 15.0f), //where what I'm looking at is
 		AXIS_Y);					//what is up
 
 //Get the singleton
 	m_pMyMeshMngr = MyMeshManager::GetInstance();
 	m_pMyMeshMngr->SetCamera(m_pCamera);
 
-	// Get the Entity Manager;
-	m_pEntityManager = MyEntityManager::GetInstance();
+	m_mPlayer = new MyMesh();
 
 	v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 15, -20));
 
-	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 0, -25));
+	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 20, -25));
 	m_v3PlayerVelocity = vector3(0.0f);
 	m_v3PlayerAcceleration = vector3(0.0f);
 	m_v3Gravity = vector3(0.0f, -0.01f, 0.0f);
 }
+
+matrix4 Application::GetPlayerComponent(vector3 a_v3playerPosition, vector3 a_v3Offset)
+{
+	return glm::translate(a_v3playerPosition + a_v3Offset);
+}
+
+void Application::AddPlayerToRenderList()
+{
+	/*m_mPlayer->GenerateCube(3.0f, vector3(1.0f, 0.0f, 0.0f));
+	m_mPlayer->Render(m_pCamera, GetPlayerComponent(m_v3PlayerPosition, vector3(0.0f, 2.5f, 0.0f))); */
+
+	m_pMyMeshMngr->AddCubeToRenderList(GetPlayerComponent(
+		m_v3PlayerPosition, vector3(0.0f))
+		* glm::scale(vector3(3.0f))); //Body
+
+	m_pMyMeshMngr->AddCubeToRenderList(
+		GetPlayerComponent(m_v3PlayerPosition, vector3(0.0f, 2.5f, 0.0f))
+		* glm::scale(vector3(2.5f))); //Head
+
+	m_pMyMeshMngr->AddCubeToRenderList(
+		GetPlayerComponent(m_v3PlayerPosition, vector3(2.1f, 0.2f, 0.0f))
+		* glm::scale(vector3(1.3f, 2.5f, 3.0f))); //Left arm
+
+	m_pMyMeshMngr->AddCubeToRenderList(
+		GetPlayerComponent(m_v3PlayerPosition, vector3(-2.1f, 0.2f, 0.0f))
+		* glm::scale(vector3(1.3f, 2.5f, 3.0f))); //Right arm
+
+	m_pMyMeshMngr->AddCubeToRenderList(
+		GetPlayerComponent(m_v3PlayerPosition, vector3(0.9f, -3.0f, 0.0f))
+		* glm::scale(vector3(1.3f, 3.0f, 3.0f))); //Left leg
+
+	m_pMyMeshMngr->AddCubeToRenderList(
+		GetPlayerComponent(m_v3PlayerPosition, vector3(-0.9f, -3.0f, 0.0f))
+		* glm::scale(vector3(1.3f, 3.0f, 3.0f))); //Right Leg
+}
+
+void Application::ApplyForceToPlayer(vector3 a_force)
+{
+	m_v3PlayerAcceleration += a_force; //Player mass is 1
+	m_v3PlayerVelocity += m_v3PlayerAcceleration;
+
+	//Clamp velocity
+	if (m_v3PlayerVelocity.y > 0.5f) m_v3PlayerVelocity.y = 0.5f;
+	else if (m_v3PlayerVelocity.y < -0.5f) m_v3PlayerVelocity.y = -0.5f;
+
+	if (m_v3PlayerVelocity.x > 0.5f) m_v3PlayerVelocity.x = 0.5f;
+	else if (m_v3PlayerVelocity.x < -0.5f) m_v3PlayerVelocity.x = -0.5f;
+
+	if (m_v3PlayerVelocity.z > 0.5f) m_v3PlayerVelocity.z = 0.5f;
+	else if (m_v3PlayerVelocity.z < -0.5f) m_v3PlayerVelocity.z = -0.5f;
+
+	if (CheckCollision(m_v3PlayerPosition + m_v3PlayerVelocity));
+	m_v3PlayerPosition += m_v3PlayerVelocity;
+
+	//Reset acceleration
+	m_v3PlayerAcceleration = vector3(0.0f);
+	//pass the player's y-velocity to the camera
+	FollowCamera(m_v3PlayerVelocity.y);
+}
+
 void Application::Update(void)
 {
 	if (m_v3PlayerVelocity.x < 0.01f) isMovingRight = false;
@@ -90,11 +135,11 @@ void Application::Update(void)
 	//Is the first person camera active?
 	//CameraRotation();
 
-	if (i_gameTick % 50 == 0)
+	if (i_gameTick % 100 == 0)
 	{
-		float f_randomX = rand() % 10;
-		vector3 position = vector3(f_randomX - 5, 0, 0);
-		v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 0, -20) + position);
+		float f_randomX = rand() % 20;
+		vector3 position = vector3(f_randomX - 10, 0, 0);
+		v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 15, -20) + position);
 
 		if (v_v3blockPositions.size() > 6)
 		{
@@ -108,9 +153,11 @@ void Application::Update(void)
 		m_pMyMeshMngr->AddCubeToRenderList(glm::translate(position) * glm::scale(vector3(10, 1, 1)));
 	}
 
-
 	//Add the player to the render list and apply "gravity"
-	m_pMyMeshMngr->AddCubeToRenderList(glm::translate(m_v3PlayerPosition) * glm::scale(vector3(3)));
+	m_v3PlayerPosition.x = m_pCamera->GetPosition().x;
+
+	//Add the player's different meshes (body, head, arms, legs) to the render list
+	AddPlayerToRenderList();
 	ApplyForceToPlayer(m_v3Gravity);
 
 	//If the player falls under the camera, game is over
@@ -121,7 +168,7 @@ void Application::Update(void)
 void Application::Display(void)
 {
 	//Clear the screen
-	ClearScreen();
+	ClearScreen(vector4(1.0f, .5f, 1.0f, 1.0f));
 
 	//clear the render list
 	m_pMeshMngr->ClearRenderList();
@@ -145,6 +192,8 @@ void Application::Release(void)
 {
 	//release the singleton
 	MyMeshManager::ReleaseInstance();
+
+	SafeDelete(m_mPlayer);
 
 	//release the camera
 	SafeDelete(m_pCamera);
