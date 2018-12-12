@@ -76,7 +76,7 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 	{
 		//Jump up when pressing space
 	case sf::Keyboard::Space:
-		if (Application::isJumping == false)
+		if (Application::isJumping == false&&Application::isColliding==true)
 		{
 			Application::ApplyForceToPlayer(vector3(0.0f, 5.0f, 0.0f));
 			Application::isJumping = true;

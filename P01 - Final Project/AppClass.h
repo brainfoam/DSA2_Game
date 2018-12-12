@@ -18,6 +18,7 @@ namespace Simplex
 
 	class Application
 	{
+		bool isColliding;
 		vector3 m_v3PlayerPosition; //The player's current position (center)
 		vector3 m_v3PlayerBottomPos; //The position at the player's feet
 		vector3 m_v3Gravity; //Acceleration of the player towards the bottom. Resets when the player jumps
@@ -60,6 +61,9 @@ namespace Simplex
 		//Gets the glm::translate of the player to render the player's different meshes
 		matrix4 GetPlayerComponent(vector3 a_v3playerPosition, vector3 a_v3Offset);
 
+		int i_tickTotal = 100;
+		
+
 		void AddPlayerToRenderList();
 
 	public:
@@ -67,6 +71,7 @@ namespace Simplex
 		void ApplyForceToPlayer(vector3 a_force);
 		bool CheckCollision(vector3);
 		void FollowCamera(float a_fForce);
+	
 
 #pragma region Constructor / Run / Destructor
 		/*

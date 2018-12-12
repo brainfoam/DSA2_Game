@@ -2,18 +2,19 @@
 using namespace Simplex;
 
 MyMesh* m_block;
-float f_cameraSpeed = .1;
+float f_cameraSpeed = .08;
 int i_gameTick;
 
 std::vector<vector3> v_v3blockPositions;
 
 bool Application::CheckCollision(vector3 v)
 {
+	if (isJumping)
+		return false;
 	for (auto i = 0; i < v_v3blockPositions.size(); i++)
 	{
 		vector3 collider = v_v3blockPositions[i];
-		vector3 playerV = v;
-		playerV.y - 3.0f;
+		vector3 playerV = vector3(v.x, v.y - 3.5f, v.z);
 		//std::cout << v.x << "  " << v.y << "  " << v.z << "\t\t"<< collider.x << "  " << collider.y << "  " << collider.z << std::endl;
 		if (m_v3PlayerVelocity.y < 0)
 		{
@@ -31,8 +32,13 @@ bool Application::CheckCollision(vector3 v)
 void Application::FollowCamera(float a_fForce)
 {
 	//if the player's y-velocity is positive (player is moving up), camera follows them up
-	if (a_fForce > 0 && m_v3PlayerPosition.y >= m_pCamera->GetPosition().y + 6.0f) {
+	if (a_fForce > 0 && m_v3PlayerPosition.y >= m_pCamera->GetPosition().y + 7.0f) {
 		m_pCamera->MoveVertical(a_fForce);
+		i_tickTotal = 50;
+	}
+	else
+	{
+		i_tickTotal = 100;
 	}
 }
 
@@ -60,10 +66,13 @@ void Application::InitVariables(void)
 
 	v_v3blockPositions.push_back(m_pCamera->GetPosition() + vector3(0, 15, -20));
 
-	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 30, -25));
+	m_v3PlayerPosition = vector3(m_pCamera->GetPosition() + vector3(0, 30, -22.5));
 	m_v3PlayerVelocity = vector3(0.0f);
 	m_v3PlayerAcceleration = vector3(0.0f);
 	m_v3Gravity = vector3(0.0f, -0.01f, 0.0f);
+	isColliding = false;
+
+	i_tickTotal = 100;
 }
 
 matrix4 Application::GetPlayerComponent(vector3 a_v3playerPosition, vector3 a_v3Offset)
@@ -101,7 +110,7 @@ void Application::AddPlayerToRenderList()
 		* glm::scale(vector3(1.3f, 3.0f, 3.0f))); //Right Leg
 }
 
-float f_maxVelocity = 0.7f;
+float f_maxVelocity = 0.6f;
 void Application::ApplyForceToPlayer(vector3 a_force)
 {
 	m_v3PlayerAcceleration += a_force; //Player mass is 1
@@ -119,9 +128,12 @@ void Application::ApplyForceToPlayer(vector3 a_force)
 
 	if (CheckCollision(m_v3PlayerPosition /*+ m_v3PlayerVelocity*/))
 	{
-		m_v3PlayerVelocity *= -1.0f;
+		m_v3PlayerVelocity *= 0;
+		isColliding = true;
 		//m_v3PlayerAcceleration = vector3(0, 0, 0);
 	}
+	else
+		isColliding = false;
 		
 	m_v3PlayerPosition += m_v3PlayerVelocity;
 
@@ -131,8 +143,9 @@ void Application::ApplyForceToPlayer(vector3 a_force)
 	//Reset acceleration
 	m_v3PlayerAcceleration = vector3(0.0f);
 	//pass the player's y-velocity to the camera
-	FollowCamera(m_v3PlayerVelocity.y);
+	FollowCamera(m_v3PlayerVelocity.y-0.2);
 }
+
 
 void Application::Update(void)
 {
@@ -152,7 +165,7 @@ void Application::Update(void)
 	//Is the first person camera active?
 	//CameraRotation();
 
-	if (i_gameTick % 100 == 0)
+	if (i_gameTick % i_tickTotal == 0)
 	{
 		float f_randomX = rand() % 20;
 		vector3 position = vector3(f_randomX - 10, 0, 0);
@@ -183,6 +196,12 @@ void Application::Update(void)
 
 	m_pCamera->MoveVertical(f_cameraSpeed);
 
+	// check if the player is out of bounds (only at the bottom of the screen)
+	float distanceToBottom =glm::distance(m_v3PlayerPosition.y, m_pCamera->GetPosition().y);
+	if (distanceToBottom>20.0f&&m_v3PlayerPosition.y<m_pCamera->GetPosition().y)
+	{
+		InitVariables();
+	}
 }
 void Application::Display(void)
 {
