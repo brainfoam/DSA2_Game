@@ -134,6 +134,9 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			}
 		}
 		break;
+	case sf::Keyboard::R:
+		Application::InitVariables();
+		break;
 	case sf::Keyboard::Subtract:
 		--m_uActCont;
 		if (m_uActCont > 7)
