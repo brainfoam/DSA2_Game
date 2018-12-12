@@ -76,9 +76,9 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 	{
 		//Jump up when pressing space
 	case sf::Keyboard::Space:
-		if (Application::isJumping == false)
+		if (Application::isJumping == false&&Application::isColliding==true)
 		{
-			Application::ApplyForceToPlayer(vector3(0.0f, 1.2f, 0.0f));
+			Application::ApplyForceToPlayer(vector3(0.0f, 5.0f, 0.0f));
 			Application::isJumping = true;
 		}
 		break;
@@ -429,11 +429,11 @@ void Application::ProcessKeyboard(void)
 	if (fMultiplier)
 		fSpeed *= 5.0f;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+	/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		m_pCamera->MoveForward(fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		m_pCamera->MoveForward(-fSpeed);
-
+*/
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		m_pCamera->MoveSideways(-fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))

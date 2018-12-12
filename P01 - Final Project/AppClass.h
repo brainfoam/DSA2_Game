@@ -11,12 +11,16 @@ Date: 2017/05
 #include "imgui\ImGuiObject.h"
 
 #include "MyMeshManager.h"
+#include "MyEntityManager.h"
+#include "MyEntity.h"
 namespace Simplex
 {
 
 	class Application
 	{
-		vector3 m_v3PlayerPosition; //The player's current position
+		bool isColliding;
+		vector3 m_v3PlayerPosition; //The player's current position (center)
+		vector3 m_v3PlayerBottomPos; //The position at the player's feet
 		vector3 m_v3Gravity; //Acceleration of the player towards the bottom. Resets when the player jumps
 
 		MyCamera* m_pCamera = nullptr; //Camera class
@@ -30,6 +34,8 @@ namespace Simplex
 	private:
 		vector3 m_v3PlayerAcceleration;
 		vector3 m_v3PlayerVelocity;
+
+		MyMesh* m_mPlayer;
 
 		static ImGuiObject gui; //GUI object
 
@@ -52,11 +58,20 @@ namespace Simplex
 		ControllerInput* m_pController[8]; //Controller
 		uint m_uActCont = 0; //Active Controller of the Application
 
+		//Gets the glm::translate of the player to render the player's different meshes
+		matrix4 GetPlayerComponent(vector3 a_v3playerPosition, vector3 a_v3Offset);
+
+		int i_tickTotal = 100;
+		
+
+		void AddPlayerToRenderList();
+
 	public:
 		//Applies a force to the player
 		void ApplyForceToPlayer(vector3 a_force);
 		bool CheckCollision(vector3);
 		void FollowCamera(float a_fForce);
+	
 
 #pragma region Constructor / Run / Destructor
 		/*
